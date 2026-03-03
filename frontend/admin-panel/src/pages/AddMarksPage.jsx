@@ -22,16 +22,16 @@ const AddMarksPage = () => {
     const hdr = { Authorization: `Bearer ${token}` };
 
     useEffect(() => {
-        fetch(`${API}/admin/departments`, { headers: hdr }).then(r => r.json()).then(setDepartments);
-        fetch(`${API}/admin/semesters`, { headers: hdr }).then(r => r.json()).then(setSemesters);
-        fetch(`${API}/admin/students`, { headers: hdr }).then(r => r.json()).then(setStudents);
+        fetch(`${API}/admin/departments`, { headers: hdr }).then(r => r.json()).then(data => setDepartments(Array.isArray(data) ? data : []));
+        fetch(`${API}/admin/semesters`, { headers: hdr }).then(r => r.json()).then(data => setSemesters(Array.isArray(data) ? data : []));
+        fetch(`${API}/admin/students`, { headers: hdr }).then(r => r.json()).then(data => setStudents(Array.isArray(data) ? data : []));
     }, []);
 
     // When dept + sem selected → load subjects
     useEffect(() => {
         if (!selDept || !selSem) { setSubjects([]); setMarks({}); return; }
         fetch(`${API}/admin/subjects?departmentId=${selDept}&semesterId=${selSem}`, { headers: hdr })
-            .then(r => r.json()).then(data => { setSubjects(data); setMarks({}); });
+            .then(r => r.json()).then(data => { setSubjects(Array.isArray(data) ? data : []); setMarks({}); });
     }, [selDept, selSem]);
 
     // When student selected → prefill existing marks
@@ -40,9 +40,11 @@ const AddMarksPage = () => {
         fetch(`${API}/admin/students/${selStudent}/marks`, { headers: hdr })
             .then(r => r.json()).then(data => {
                 const pre = {};
-                data.forEach(m => {
-                    if (subjects.find(s => s.id === m.subject_id)) pre[m.subject_id] = m.marks;
-                });
+                if (Array.isArray(data)) {
+                    data.forEach(m => {
+                        if (subjects.find(s => s.id === m.subject_id)) pre[m.subject_id] = m.marks;
+                    });
+                }
                 setMarks(pre);
             });
     }, [selStudent, subjects]);

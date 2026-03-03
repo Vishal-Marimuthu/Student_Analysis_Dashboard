@@ -99,6 +99,59 @@ const subjectTemplates = {
     ],
 };
 
+// ─── Students per department (4 each = 32 total) ──────────────────────────────
+// Password for all students: "student123"
+const studentsByDept = {
+    AIDS: [
+        { name: 'Arjun Sharma', email: 'arjun.aids@university.edu', sem: 1, marks: [92, 88, 76, 84] },
+        { name: 'Priya Menon', email: 'priya.aids@university.edu', sem: 1, marks: [78, 65, 82, 70] },
+        { name: 'Rohan Iyer', email: 'rohan.aids@university.edu', sem: 1, marks: [55, 62, 48, 59] },
+        { name: 'Sneha Pillai', email: 'sneha.aids@university.edu', sem: 1, marks: [95, 91, 89, 93] },
+    ],
+    AIML: [
+        { name: 'Karthik Nair', email: 'karthik.aiml@university.edu', sem: 1, marks: [88, 74, 91, 67] },
+        { name: 'Divya Rao', email: 'divya.aiml@university.edu', sem: 1, marks: [63, 70, 58, 75] },
+        { name: 'Arun Kumar', email: 'arun.aiml@university.edu', sem: 1, marks: [45, 52, 38, 47] },
+        { name: 'Meera Krishnan', email: 'meera.aiml@university.edu', sem: 1, marks: [82, 78, 85, 80] },
+    ],
+    CIV: [
+        { name: 'Suresh Babu', email: 'suresh.civ@university.edu', sem: 1, marks: [70, 68, 74, 65] },
+        { name: 'Anjali Singh', email: 'anjali.civ@university.edu', sem: 1, marks: [88, 92, 85, 90] },
+        { name: 'Vijay Rajan', email: 'vijay.civ@university.edu', sem: 1, marks: [50, 44, 55, 48] },
+        { name: 'Lakshmi Devi', email: 'lakshmi.civ@university.edu', sem: 1, marks: [76, 72, 80, 68] },
+    ],
+    MECH: [
+        { name: 'Rahul Verma', email: 'rahul.mech@university.edu', sem: 1, marks: [82, 77, 85, 90] },
+        { name: 'Pooja Sharma', email: 'pooja.mech@university.edu', sem: 1, marks: [60, 55, 63, 58] },
+        { name: 'Sanjay Gupta', email: 'sanjay.mech@university.edu', sem: 1, marks: [93, 89, 95, 91] },
+        { name: 'Nisha Patel', email: 'nisha.mech@university.edu', sem: 1, marks: [40, 45, 38, 42] },
+    ],
+    CSE: [
+        { name: 'Vikram Reddy', email: 'vikram.cse@university.edu', sem: 1, marks: [91, 87, 93, 89] },
+        { name: 'Ananya Das', email: 'ananya.cse@university.edu', sem: 1, marks: [72, 68, 76, 70] },
+        { name: 'Deepak Joshi', email: 'deepak.cse@university.edu', sem: 1, marks: [58, 62, 55, 60] },
+        { name: 'Kavitha Raman', email: 'kavitha.cse@university.edu', sem: 1, marks: [85, 82, 88, 84] },
+    ],
+    ECE: [
+        { name: 'Manoj Tiwari', email: 'manoj.ece@university.edu', sem: 1, marks: [77, 83, 71, 79] },
+        { name: 'Swathi Nair', email: 'swathi.ece@university.edu', sem: 1, marks: [94, 90, 92, 88] },
+        { name: 'Prakash Gowda', email: 'prakash.ece@university.edu', sem: 1, marks: [48, 53, 44, 50] },
+        { name: 'Rekha Suresh', email: 'rekha.ece@university.edu', sem: 1, marks: [65, 70, 62, 68] },
+    ],
+    EEE: [
+        { name: 'Balaji Krishnan', email: 'balaji.eee@university.edu', sem: 1, marks: [86, 80, 84, 78] },
+        { name: 'Usha Menon', email: 'usha.eee@university.edu', sem: 1, marks: [55, 60, 52, 57] },
+        { name: 'Gopal Sharma', email: 'gopal.eee@university.edu', sem: 1, marks: [92, 95, 88, 91] },
+        { name: 'Padma Ravi', email: 'padma.eee@university.edu', sem: 1, marks: [43, 39, 47, 41] },
+    ],
+    IT: [
+        { name: 'Ramesh Babu', email: 'ramesh.it@university.edu', sem: 1, marks: [80, 75, 82, 78] },
+        { name: 'Chitra Sundaram', email: 'chitra.it@university.edu', sem: 1, marks: [91, 88, 94, 86] },
+        { name: 'Ajay Patel', email: 'ajay.it@university.edu', sem: 1, marks: [62, 58, 65, 60] },
+        { name: 'Saranya Kumar', email: 'saranya.it@university.edu', sem: 1, marks: [47, 43, 50, 45] },
+    ],
+};
+
 // ─── Seed runner ──────────────────────────────────────────────────────────────
 
 async function seed() {
@@ -111,23 +164,25 @@ async function seed() {
 
     console.log('Connected for seeding...');
 
-    // Create & use database
-    await conn.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\``);
+    // Always drop and recreate to avoid ANY duplicate data
+    await conn.query(`DROP DATABASE IF EXISTS \`${process.env.DB_NAME}\``);
+    await conn.query(`CREATE DATABASE \`${process.env.DB_NAME}\``);
     await conn.query(`USE \`${process.env.DB_NAME}\``);
 
-    // Create tables
+    // Create tables with proper UNIQUE constraints
     await conn.query(`
-    CREATE TABLE IF NOT EXISTS departments (
+    CREATE TABLE departments (
       id INT AUTO_INCREMENT PRIMARY KEY,
       department_name VARCHAR(150) NOT NULL UNIQUE
     );
 
-    CREATE TABLE IF NOT EXISTS semesters (
+    CREATE TABLE semesters (
       id INT AUTO_INCREMENT PRIMARY KEY,
-      semester_number INT NOT NULL
+      semester_number INT NOT NULL,
+      UNIQUE KEY unique_sem (semester_number)
     );
 
-    CREATE TABLE IF NOT EXISTS subjects (
+    CREATE TABLE subjects (
       id INT AUTO_INCREMENT PRIMARY KEY,
       subject_name VARCHAR(150) NOT NULL,
       subject_code VARCHAR(20) NOT NULL UNIQUE,
@@ -137,7 +192,7 @@ async function seed() {
       FOREIGN KEY (semester_id) REFERENCES semesters(id)
     );
 
-    CREATE TABLE IF NOT EXISTS users (
+    CREATE TABLE users (
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(100) NOT NULL,
       email VARCHAR(100) NOT NULL UNIQUE,
@@ -146,7 +201,7 @@ async function seed() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
-    CREATE TABLE IF NOT EXISTS students (
+    CREATE TABLE students (
       id INT AUTO_INCREMENT PRIMARY KEY,
       user_id INT NOT NULL UNIQUE,
       student_name VARCHAR(100) NOT NULL,
@@ -156,7 +211,7 @@ async function seed() {
       FOREIGN KEY (department_id) REFERENCES departments(id)
     );
 
-    CREATE TABLE IF NOT EXISTS student_marks (
+    CREATE TABLE student_marks (
       id INT AUTO_INCREMENT PRIMARY KEY,
       student_id INT NOT NULL,
       subject_id INT NOT NULL,
@@ -167,27 +222,21 @@ async function seed() {
     );
   `);
 
-    console.log('Tables created.');
+    console.log('Tables created (fresh).');
 
     // Seed departments
     for (const dept of departments) {
-        await conn.query(
-            'INSERT IGNORE INTO departments (department_name) VALUES (?)',
-            [dept.name]
-        );
+        await conn.query('INSERT INTO departments (department_name) VALUES (?)', [dept.name]);
     }
     console.log('Departments seeded.');
 
     // Seed semesters 1–8
     for (let s = 1; s <= 8; s++) {
-        await conn.query(
-            'INSERT IGNORE INTO semesters (semester_number) VALUES (?)',
-            [s]
-        );
+        await conn.query('INSERT INTO semesters (semester_number) VALUES (?)', [s]);
     }
     console.log('Semesters seeded.');
 
-    // Seed subjects (4 per dept per semester)
+    // Seed subjects (4 per dept per semester = 256 total)
     for (const dept of departments) {
         const [deptRows] = await conn.query('SELECT id FROM departments WHERE department_name = ?', [dept.name]);
         const deptId = deptRows[0].id;
@@ -204,7 +253,7 @@ async function seed() {
                 const code = `${dept.code}${semNum}${subNum}`;
                 const name = subjects[subIdx];
                 await conn.query(
-                    'INSERT IGNORE INTO subjects (subject_name, subject_code, department_id, semester_id) VALUES (?, ?, ?, ?)',
+                    'INSERT INTO subjects (subject_name, subject_code, department_id, semester_id) VALUES (?, ?, ?, ?)',
                     [name, code, deptId, semId]
                 );
             }
@@ -212,22 +261,54 @@ async function seed() {
     }
     console.log('Subjects seeded (256 subjects).');
 
-    // Seed admin user
-    const adminEmail = 'admin@university.edu';
-    const [existing] = await conn.query('SELECT id FROM users WHERE email = ?', [adminEmail]);
-    if (existing.length === 0) {
-        const hash = await bcrypt.hash('admin123', 10);
-        await conn.query(
-            'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-            ['Admin', adminEmail, hash, 'admin']
+    // Seed admin
+    const hash = await bcrypt.hash('admin123', 10);
+    await conn.query(
+        'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+        ['Admin', 'admin@university.edu', hash, 'admin']
+    );
+    console.log('Admin user created: admin@university.edu / admin123');
+
+    // Seed 32 students with marks
+    console.log('Seeding students and marks...');
+    const studentPassword = await bcrypt.hash('student123', 10);
+
+    for (const dept of departments) {
+        const [deptRows] = await conn.query('SELECT id FROM departments WHERE department_name = ?', [dept.name]);
+        const deptId = deptRows[0].id;
+        const students = studentsByDept[dept.code];
+
+        const [semRows] = await conn.query('SELECT id FROM semesters WHERE semester_number = 1');
+        const semId = semRows[0].id;
+        const [subjects] = await conn.query(
+            'SELECT id FROM subjects WHERE department_id = ? AND semester_id = ? ORDER BY id ASC',
+            [deptId, semId]
         );
-        console.log('Admin user created: admin@university.edu / admin123');
-    } else {
-        console.log('Admin user already exists.');
+
+        for (const stu of students) {
+            const [uRes] = await conn.query(
+                'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+                [stu.name, stu.email, studentPassword, 'student']
+            );
+            const [sRes] = await conn.query(
+                'INSERT INTO students (user_id, student_name, department_id, current_semester) VALUES (?, ?, ?, ?)',
+                [uRes.insertId, stu.name, deptId, stu.sem]
+            );
+            for (let i = 0; i < subjects.length; i++) {
+                await conn.query(
+                    'INSERT INTO student_marks (student_id, subject_id, marks) VALUES (?, ?, ?)',
+                    [sRes.insertId, subjects[i].id, stu.marks[i]]
+                );
+            }
+        }
+        console.log(`  Seeded ${students.length} students for ${dept.code}`);
     }
 
     await conn.end();
-    console.log('Seeding complete!');
+    console.log('\n✅ Seeding complete! 32 students across 8 departments.');
+    console.log('   Admin login: admin@university.edu / admin123');
+    console.log('   Student login: e.g. arjun.aids@university.edu / student123\n');
 }
 
 module.exports = seed;
+

@@ -3,7 +3,32 @@ import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
     const { user, loading } = useAuth();
-    if (loading) return <div className="loading">Loading...</div>;
+
+    if (loading) {
+        return (
+            <div style={{
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--bg)',
+                gap: '1rem',
+            }}>
+                <div style={{
+                    width: '40px',
+                    height: '40px',
+                    border: '3px solid rgba(34,197,94,0.2)',
+                    borderTop: '3px solid #22c55e',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                }} />
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                <span style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>Loading...</span>
+            </div>
+        );
+    }
+
     if (!user || user.role !== 'student') return <Navigate to="/login" replace />;
     return children;
 };

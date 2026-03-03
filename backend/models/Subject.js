@@ -16,7 +16,9 @@ const getAllDepartments = async () => {
 };
 
 const getAllSemesters = async () => {
-    const [rows] = await db.query('SELECT * FROM semesters ORDER BY semester_number');
+    const [rows] = await db.query(
+        'SELECT MIN(id) AS id, semester_number FROM semesters GROUP BY semester_number ORDER BY semester_number'
+    );
     return rows;
 };
 

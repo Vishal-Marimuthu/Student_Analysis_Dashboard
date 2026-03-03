@@ -14,7 +14,7 @@ const AddStudentPage = () => {
 
     useEffect(() => {
         fetch(`${API}/admin/departments`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(r => r.json()).then(setDepartments).catch(console.error);
+            .then(r => r.json()).then(data => setDepartments(Array.isArray(data) ? data : [])).catch(console.error);
     }, [token]);
 
     const handleSubmit = async (e) => {

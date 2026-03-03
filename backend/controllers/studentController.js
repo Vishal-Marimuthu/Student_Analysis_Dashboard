@@ -53,4 +53,44 @@ const getSemesters = async (req, res) => {
     }
 };
 
-module.exports = { getMyProfile, getMySubjects, getMyMarks, getSemesters };
+// GET /api/student/rank — this student's rank in their department
+const getMyRank = async (req, res) => {
+    try {
+        const profile = await Student.getStudentByUserId(req.user.id);
+        if (!profile) return res.status(404).json({ message: 'Student profile not found.' });
+
+        const db = require('../config/db');
+        // Rank all students in this dept by avg marks, find this student's position
+        const [rows] = await db.query(`
+            SELECT ranked.rank_pos, ranked.avg_marks, ranked.total_students
+            FROM (
+                SELECT
+                    s.id,
+                    ROUND(AVG(sm.marks), 1) AS avg_marks,
+                    RANK() OVER (ORDER BY AVG(sm.marks) DESC) AS rank_pos,
+                    COUNT(DISTINCT s.id) OVER () AS total_students
+                FROM students s
+                LEFT JOIN student_marks sm ON sm.student_id = s.id
+                WHERE s.department_id = ?
+                GROUP BY s.id
+                HAVING COUNT(sm.id) > 0
+            ) AS ranked
+            WHERE ranked.id = ?
+        `, [profile.department_id, profile.id]);
+
+        if (rows.length === 0) {
+            return res.json({ rank: null, avg_marks: null, total_students: 0 });
+        }
+        res.json({
+            rank: rows[0].rank_pos,
+            avg_marks: rows[0].avg_marks,
+            total_students: rows[0].total_students,
+        });
+    } catch (err) {
+        console.error('getMyRank error:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+};
+
+module.exports = { getMyProfile, getMySubjects, getMyMarks, getSemesters, getMyRank };
+

@@ -10,6 +10,7 @@ const {
     getDepartments,
     getSubjects,
     getSemesters,
+    getDepartmentRankings,
 } = require('../controllers/adminController');
 
 // Apply admin guard to all routes
@@ -25,5 +26,7 @@ router.get('/students/:id', getStudentById);
 router.get('/students/:id/marks', getStudentMarks);
 
 router.post('/marks', addMarks);
+
+router.get('/rankings', getDepartmentRankings);
 
 module.exports = router;

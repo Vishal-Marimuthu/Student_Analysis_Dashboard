@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, PlusCircle, ClipboardList, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, PlusCircle, ClipboardList, Trophy, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Layout = ({ children, title }) => {
@@ -13,6 +13,7 @@ const Layout = ({ children, title }) => {
         { to: '/students', icon: Users, label: 'All Students' },
         { to: '/add-student', icon: PlusCircle, label: 'Add Student' },
         { to: '/add-marks', icon: ClipboardList, label: 'Add Marks' },
+        { to: '/rankings', icon: Trophy, label: 'Rankings' },
     ];
 
     return (

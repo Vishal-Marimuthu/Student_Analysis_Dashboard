@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { getGrade, getGradeColor } from '../utils/gradeUtils';
 
 const API = 'http://localhost:5000/api';
 
@@ -12,6 +13,7 @@ const Dashboard = () => {
     const [semesters, setSemesters] = useState([]);
     const [selSem, setSelSem] = useState('all');
     const [loading, setLoading] = useState(true);
+    const [rank, setRank] = useState(null);
 
     useEffect(() => {
         const h = { Authorization: `Bearer ${token}` };
@@ -19,8 +21,13 @@ const Dashboard = () => {
             fetch(`${API}/student/profile`, { headers: h }).then(r => r.json()),
             fetch(`${API}/student/marks`, { headers: h }).then(r => r.json()),
             fetch(`${API}/student/semesters`, { headers: h }).then(r => r.json()),
-        ]).then(([p, m, s]) => { setProfile(p); setMarks(m); setSemesters(s); })
-            .finally(() => setLoading(false));
+            fetch(`${API}/student/rank`, { headers: h }).then(r => r.json()).catch(() => null),
+        ]).then(([p, m, s, r]) => {
+            setProfile(p && !p.error ? p : null);
+            setMarks(Array.isArray(m) ? m : []);
+            setSemesters(Array.isArray(s) ? s : []);
+            setRank(r && r.rank ? r : null);
+        }).finally(() => setLoading(false));
     }, [token]);
 
     const semNums = [...new Set(marks.map(m => m.semester_number))].sort();
@@ -45,6 +52,9 @@ const Dashboard = () => {
                                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                                     <span className="badge badge-primary">{profile.department_name}</span>
                                     <span className="badge badge-warning">Semester {profile.current_semester}</span>
+                                    {rank && rank.rank && (
+                                        <span className="badge badge-success">🏆 Dept Rank #{rank.rank} of {rank.total_students}</span>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -55,6 +65,12 @@ const Dashboard = () => {
                         <div className="stat-card"><div className="label">Subjects Recorded</div><div className="value" style={{ color: '#22c55e' }}>{filtered.length}</div></div>
                         <div className="stat-card"><div className="label">Average Marks</div><div className="value" style={{ color: '#818cf8' }}>{avg}</div></div>
                         <div className="stat-card"><div className="label">Subjects Passed</div><div className="value" style={{ color: '#f59e0b' }}>{passed}</div></div>
+                        {rank && rank.rank && (
+                            <div className="stat-card">
+                                <div className="label">Dept Rank</div>
+                                <div className="value" style={{ color: '#f59e0b' }}>#{rank.rank}<span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 400 }}> / {rank.total_students}</span></div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Semester tabs */}
@@ -103,8 +119,8 @@ const Dashboard = () => {
                                                 <td>Sem {m.semester_number}</td>
                                                 <td><strong>{m.marks}</strong>/100</td>
                                                 <td>
-                                                    <span className={`badge ${m.marks >= 75 ? 'badge-primary' : m.marks >= 50 ? 'badge-warning' : 'badge-danger'}`}>
-                                                        {m.marks >= 75 ? 'Pass' : m.marks >= 50 ? 'Average' : 'Fail'}
+                                                    <span className={`badge ${getGradeColor(m.marks)}`} style={{ fontSize: '0.82rem', fontWeight: 700, letterSpacing: '0.03em' }}>
+                                                        {getGrade(m.marks)}
                                                     </span>
                                                 </td>
                                             </tr>

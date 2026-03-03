@@ -7,6 +7,7 @@ import StudentsPage from './pages/StudentsPage';
 import AddStudentPage from './pages/AddStudentPage';
 import AddMarksPage from './pages/AddMarksPage';
 import StudentDetailPage from './pages/StudentDetailPage';
+import RankingsPage from './pages/RankingsPage';
 import './index.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/students/:id" element={<ProtectedRoute><StudentDetailPage /></ProtectedRoute>} />
           <Route path="/add-student" element={<ProtectedRoute><AddStudentPage /></ProtectedRoute>} />
           <Route path="/add-marks" element={<ProtectedRoute><AddMarksPage /></ProtectedRoute>} />
+          <Route path="/rankings" element={<ProtectedRoute><RankingsPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

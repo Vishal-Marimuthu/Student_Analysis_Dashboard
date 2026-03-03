@@ -12,7 +12,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetch(`${API}/admin/students`, { headers: { Authorization: `Bearer ${token}` } })
-            .then(r => r.json()).then(setStudents).catch(console.error).finally(() => setLoading(false));
+            .then(r => r.json()).then(data => setStudents(Array.isArray(data) ? data : [])).catch(console.error).finally(() => setLoading(false));
     }, [token]);
 
     // Group by department

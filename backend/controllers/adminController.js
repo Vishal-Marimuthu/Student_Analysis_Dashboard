@@ -119,6 +119,37 @@ const getSemesters = async (req, res) => {
     }
 };
 
+// GET /api/admin/rankings — all students ranked by avg marks per department
+const getDepartmentRankings = async (req, res) => {
+    try {
+        const db = require('../config/db');
+        const [rows] = await db.query(`
+            SELECT
+                s.id AS student_id,
+                s.student_name,
+                d.id AS department_id,
+                d.department_name,
+                s.current_semester,
+                ROUND(AVG(sm.marks), 1) AS avg_marks,
+                COUNT(sm.id) AS subjects_count,
+                RANK() OVER (
+                    PARTITION BY s.department_id
+                    ORDER BY AVG(sm.marks) DESC
+                ) AS dept_rank
+            FROM students s
+            JOIN departments d ON s.department_id = d.id
+            LEFT JOIN student_marks sm ON sm.student_id = s.id
+            GROUP BY s.id, s.student_name, d.id, d.department_name, s.current_semester
+            HAVING subjects_count > 0
+            ORDER BY d.department_name, dept_rank
+        `);
+        res.json(rows);
+    } catch (err) {
+        console.error('getDepartmentRankings error:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+};
+
 module.exports = {
     getAllStudents,
     getStudentById,
@@ -128,4 +159,6 @@ module.exports = {
     getDepartments,
     getSubjects,
     getSemesters,
+    getDepartmentRankings,
 };
+

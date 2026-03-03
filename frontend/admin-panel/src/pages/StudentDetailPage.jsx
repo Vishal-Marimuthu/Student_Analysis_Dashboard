@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { ArrowLeft } from 'lucide-react';
+import { getGrade, getGradeColor } from '../utils/gradeUtils';
 
 const API = 'http://localhost:5000/api';
 
@@ -20,7 +21,7 @@ const StudentDetailPage = () => {
         Promise.all([
             fetch(`${API}/admin/students/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
             fetch(`${API}/admin/students/${id}/marks`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
-        ]).then(([s, m]) => { setStudent(s); setMarks(m); }).finally(() => setLoading(false));
+        ]).then(([s, m]) => { setStudent(s && !s.error ? s : null); setMarks(Array.isArray(m) ? m : []); }).finally(() => setLoading(false));
     }, [id, token]);
 
     const semesters = [...new Set(marks.map(m => m.semester_number))].sort();
@@ -96,8 +97,8 @@ const StudentDetailPage = () => {
                                             <td>Sem {m.semester_number}</td>
                                             <td><strong>{m.marks}</strong>/100</td>
                                             <td>
-                                                <span className={`badge ${m.marks >= 75 ? 'badge-success' : m.marks >= 50 ? 'badge-warning' : 'badge-danger'}`}>
-                                                    {m.marks >= 75 ? 'Pass' : m.marks >= 50 ? 'Average' : 'Fail'}
+                                                <span className={`badge ${getGradeColor(m.marks)}`} style={{ fontSize: '0.82rem', fontWeight: 700, letterSpacing: '0.03em' }}>
+                                                    {getGrade(m.marks)}
                                                 </span>
                                             </td>
                                         </tr>
