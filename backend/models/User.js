@@ -1,5 +1,10 @@
 const db = require('../config/db');
 
+const findById = async (id) => {
+    const [rows] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
+    return rows[0];
+};
+
 const findByEmail = async (email) => {
     const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
     return rows[0];
@@ -13,4 +18,4 @@ const createUser = async ({ name, email, password, role = 'student' }) => {
     return result.insertId;
 };
 
-module.exports = { findByEmail, createUser };
+module.exports = { findById, findByEmail, createUser };

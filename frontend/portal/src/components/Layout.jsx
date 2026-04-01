@@ -24,13 +24,19 @@ const Layout = ({ children, title }) => {
         navigate('/login');
     };
 
-    const nav = [
-        { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    const adminNav = [
+        { to: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
         { to: '/students', icon: Users, label: 'All Students' },
         { to: '/add-student', icon: PlusCircle, label: 'Add Student' },
         { to: '/add-marks', icon: ClipboardList, label: 'Add Marks' },
         { to: '/rankings', icon: Trophy, label: 'Rankings' },
     ];
+    
+    const studentNav = [
+        { to: '/student', icon: LayoutDashboard, label: 'My Dashboard' }
+    ];
+    
+    const nav = user?.role === 'admin' ? adminNav : studentNav;
 
     return (
         <>
@@ -45,8 +51,8 @@ const Layout = ({ children, title }) => {
             <div className="app-layout">
                 <aside className="sidebar">
                     <div className="sidebar-logo">
-                        <div className="logo-icon">A</div>
-                        <span>AcadAdmin</span>
+                        <div className="logo-icon">{user?.role === 'admin' ? 'A' : 'S'}</div>
+                        <span>{user?.role === 'admin' ? 'AcadAdmin' : 'AcadStudent'}</span>
                     </div>
                     <nav>
                         {nav.map(({ to, icon: Icon, label }) => (
@@ -67,7 +73,7 @@ const Layout = ({ children, title }) => {
                         <h1>{title}</h1>
                         <div className="user-info">
                             <span>{user?.name}</span>
-                            <span className="user-badge">Admin</span>
+                            <span className="user-badge">{user?.role === 'admin' ? 'Admin' : 'Student'}</span>
                         </div>
                     </header>
                     <main className="page-content">{children}</main>
